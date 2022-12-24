@@ -12,15 +12,14 @@ import sys
 from tools.keybind import init_std_kb
 from action.actions import TypeAction
 
+from state import App
+
 # pyQt5
 from PyQt5 import QtWidgets
-
-from PyQt5.QtWidgets import QApplication, QMainWindow
-from PyQt5.QtGui import QKeySequence
+from PyQt5.QtWidgets import QApplication, QMainWindow, QShortcut
 
 # screen info
 from screeninfo import get_monitors
-
 
 """ defines the main window """
 class MainWindow(QMainWindow):
@@ -28,15 +27,37 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
         self._init_window()
+        self._init_UI()
 
+    """ 
+        initialize the main window with all necessary 
+        components
+    """
     def _init_window(self):
-        self.action = TypeAction(self)
+        self.app = App(self)
+        self._init_shortcuts()
+    
 
+    def _init_shortcuts(self):
+        self.app.initCurrentActionShortcuts()
+
+    def _init_UI(self):
+        self.setStyleSheet("background-color: #222424")
+
+
+    """ super class overidden functions 
+
+        will redirect to class to handle
+        events based on application state
+    """
     def mousePressEvent(self, event):
-        self.action.mouseEvent(event)
+        self.app.mouseEvent(event)
     
     def keyPressEvent(self, event):
-        self.action.keyPressEvent(event)
+        self.app.keyPressEvent(event)
+
+    def mouseMoveEvent(self, event):
+        self.app.moveComponent(event)
 
 """ deal with starting dimensions """
 def set_app_dimensions(win):
@@ -59,7 +80,6 @@ def start():
 
     win.show()
     sys.exit(app.exec_())
-
 
 # starts the actual application
 start()
